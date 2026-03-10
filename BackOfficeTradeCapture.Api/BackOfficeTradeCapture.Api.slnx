@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../BackOfficeTradeCapture.Wcf/BackOfficeTradeCapture.Wcf.csproj" Id="cd9f2c92-6c21-44e9-9fbc-3510ea1ec920" />
   <Project Path="BackOfficeTradeCapture.Api.csproj" />
 </Solution>

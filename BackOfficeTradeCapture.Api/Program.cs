@@ -1,7 +1,13 @@
 using BackOfficeTradeCapture.Api;
 using BackOfficeTradeCapture.Api.Models;
+using BackOfficeTradeCapture.Wcf;
+using CoreWCF;
+using CoreWCF.Channels;
+using CoreWCF.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
