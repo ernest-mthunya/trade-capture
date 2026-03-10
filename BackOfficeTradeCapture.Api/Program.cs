@@ -1,11 +1,17 @@
 using BackOfficeTradeCapture.Api;
 using BackOfficeTradeCapture.Api.Models;
-using BackOfficeTradeCapture.Wcf;
-using CoreWCF;
-using CoreWCF.Channels;
-using CoreWCF.Configuration;
+using BackOfficeTradeCapture.Contracts;
+using System.ServiceModel;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Now you can simply use the type from your shared library
+builder.Services.AddScoped<ICurrencyRateService>(sp =>
+{
+    var binding = new BasicHttpBinding(BasicHttpSecurityMode.Transport);
+    var endpoint = new EndpointAddress("https://localhost:62411/CurrencyRateService");
+    return new ChannelFactory<ICurrencyRateService>(binding, endpoint).CreateChannel();
+});
 
 
 

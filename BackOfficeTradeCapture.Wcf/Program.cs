@@ -1,4 +1,5 @@
-﻿using BackOfficeTradeCapture.Wcf;
+﻿using BackOfficeTradeCapture.Contracts;
+using BackOfficeTradeCapture.Wcf;
 using CoreWCF;
 using CoreWCF.Channels;
 using CoreWCF.Configuration;

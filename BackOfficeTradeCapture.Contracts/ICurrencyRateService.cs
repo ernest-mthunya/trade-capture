@@ -1,6 +1,6 @@
-﻿using CoreWCF;
+﻿using System.ServiceModel;
 
-namespace BackOfficeTradeCapture.Wcf;
+namespace BackOfficeTradeCapture.Contracts;
 
 [ServiceContract]
 public interface ICurrencyRateService

@@ -1,4 +1,6 @@
-﻿using CoreWCF;
+﻿
+
+using BackOfficeTradeCapture.Contracts;
 
 namespace BackOfficeTradeCapture.Wcf;
 

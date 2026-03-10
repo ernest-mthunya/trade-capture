@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	<PackageReference Include="System.ServiceModel.Http" Version="8.1.1" />
+	<PackageReference Include="System.ServiceModel.Primitives" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BackOfficeTradeCapture.Contracts\BackOfficeTradeCapture.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

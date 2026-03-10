@@ -1,13 +1,15 @@
 using BackOfficeTradeCapture.Api.Models;
 using Microsoft.AspNetCore.Builder;
+using BackOfficeTradeCapture.Contracts;
 
 namespace BackOfficeTradeCapture.Api;
 public static class EndpointsExtensions
 {
     public static WebApplication AddBackOfficeTradeCaptureEndpoints(this WebApplication app)
     {
-        app.MapPost("/trades", (TradeRequest trade) =>
+        app.MapPost("/trades", (TradeRequest trade, ICurrencyRateService currencyService) =>
         {
+            var rate = currencyService.GetRate("USD", "EUR");
             //if (trade is null)
             //    return Results.BadRequest("Request body is required.");
 

@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="../BackOfficeTradeCapture.Contracts/BackOfficeTradeCapture.Contracts.csproj" Id="13943792-267b-4820-9023-fcebfe507a51" />
   <Project Path="../BackOfficeTradeCapture.Wcf/BackOfficeTradeCapture.Wcf.csproj" Id="cd9f2c92-6c21-44e9-9fbc-3510ea1ec920" />
   <Project Path="BackOfficeTradeCapture.Api.csproj" />
 </Solution>

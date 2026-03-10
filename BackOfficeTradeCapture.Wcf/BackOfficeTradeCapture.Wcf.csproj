@@ -12,4 +12,8 @@
     <PackageReference Include="CoreWCF.Primitives" Version="1.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BackOfficeTradeCapture.Contracts\BackOfficeTradeCapture.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>
