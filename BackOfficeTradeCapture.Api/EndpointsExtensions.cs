@@ -1,5 +1,6 @@
 using BackOfficeTradeCapture.Api.Data;
 using BackOfficeTradeCapture.Api.Models;
+using BackOfficeTradeCapture.Api.Services;
 using BackOfficeTradeCapture.Contracts;
 using Microsoft.AspNetCore.Builder;
 
@@ -8,21 +9,21 @@ public static class EndpointsExtensions
 {
     public static WebApplication AddBackOfficeTradeCaptureEndpoints(this WebApplication app)
     {
-        app.MapPost("/trades", (TradeRequest trade, ICurrencyRateService currencyService , BackOfficeDbContext db) =>
+        app.MapPost("/trades", async (TradeRequest trade, ITradeService tradeService) =>
         {
-            var rate = currencyService.GetRate("USD", "EUR");
-            //if (trade is null)
-            //    return Results.BadRequest("Request body is required.");
-
-            //if (string.IsNullOrWhiteSpace(trade.ExternalId))
-            //    return Results.BadRequest("external_id is required.");
-
-            //// In a real app you'd persist the trade here. For now return Created with the submitted payload.
-            //var location = $"/trades/{trade.ExternalId}";
-            //return Results.Created(location, trade);
+            try
+            {
+                var result = await tradeService.CaptureTradeAsync(trade);
+                return Results.Created($"/trades/{result.Id}", result);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception here
+                return Results.Problem("An error occurred while processing the trade.");
+            }
         })
-        .WithName("CreateTrade")
-        .WithTags("Trades");
+       .WithName("CreateTrade")
+       .WithTags("Trades");
 
         return app;
     }
