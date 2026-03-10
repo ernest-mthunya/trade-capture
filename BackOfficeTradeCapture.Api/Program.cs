@@ -1,6 +1,8 @@
 using BackOfficeTradeCapture.Api;
+using BackOfficeTradeCapture.Api.Data;
 using BackOfficeTradeCapture.Api.Models;
 using BackOfficeTradeCapture.Contracts;
+using Microsoft.EntityFrameworkCore;
 using System.ServiceModel;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,9 @@ builder.Services.AddScoped<ICurrencyRateService>(sp =>
     return new ChannelFactory<ICurrencyRateService>(binding, endpoint).CreateChannel();
 });
 
+
+builder.Services.AddDbContext<BackOfficeDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 // Add services to the container.

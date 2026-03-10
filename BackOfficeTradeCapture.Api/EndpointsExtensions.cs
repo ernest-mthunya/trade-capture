@@ -1,13 +1,14 @@
+using BackOfficeTradeCapture.Api.Data;
 using BackOfficeTradeCapture.Api.Models;
-using Microsoft.AspNetCore.Builder;
 using BackOfficeTradeCapture.Contracts;
+using Microsoft.AspNetCore.Builder;
 
 namespace BackOfficeTradeCapture.Api;
 public static class EndpointsExtensions
 {
     public static WebApplication AddBackOfficeTradeCaptureEndpoints(this WebApplication app)
     {
-        app.MapPost("/trades", (TradeRequest trade, ICurrencyRateService currencyService) =>
+        app.MapPost("/trades", (TradeRequest trade, ICurrencyRateService currencyService , BackOfficeDbContext db) =>
         {
             var rate = currencyService.GetRate("USD", "EUR");
             //if (trade is null)
