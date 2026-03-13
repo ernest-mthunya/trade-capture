@@ -17,6 +17,7 @@ builder.Services.AddScoped<ICurrencyRateService>(sp =>
 });
 
 builder.Services.AddScoped<ITradeService, TradeService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddDbContext<BackOfficeDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))

@@ -18,12 +18,39 @@ public static class EndpointsExtensions
             }
             catch (Exception ex)
             {
+
+
                 // Log the exception here
                 return Results.Problem("An error occurred while processing the trade.");
             }
         })
        .WithName("CreateTrade")
        .WithTags("Trades");
+
+        app.MapGet("/reports/trades", async (
+            DateOnly from,
+            DateOnly to,
+            IReportService reportService,
+            CancellationToken ct) =>
+        {
+            if (from > to)
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["from"] = ["'from' must be on or before 'to'."]
+                });
+
+            try
+            {
+                var report = await reportService.GetTradeReportAsync(from, to, ct);
+                return Results.Ok(report);
+            }
+            catch (Exception)
+            {
+                return Results.Problem("An error occurred while generating the report.");
+            }
+        })
+        .WithName("GetTradeReport")
+        .WithTags("Reports");
 
         return app;
     }
