@@ -17,14 +17,10 @@ namespace BackOfficeTradeCapture.Api.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<TradeEntity>()
-            .HasIndex(t => t.ExternalId)
-            .IsUnique()
-            .HasDatabaseName("UX_Trades_ExternalId");
+            modelBuilder
+            .ConfigureTradeEntity()
+            .ConfigureReportRow();
 
-            modelBuilder.Entity<ReportRow>()
-                .HasNoKey()
-                .ToView(null);
         }
 
 
