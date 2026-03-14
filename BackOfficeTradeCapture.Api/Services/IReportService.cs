@@ -5,6 +5,6 @@ namespace BackOfficeTradeCapture.Api.Services
     public interface IReportService
     {
         Task<ReportResponse> GetTradeReportAsync(
-       DateOnly from, DateOnly to, CancellationToken ct = default);
+         DateOnly from, DateOnly to, CancellationToken ct = default);
     }
 }

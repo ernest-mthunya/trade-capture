@@ -17,34 +17,32 @@ namespace BackOfficeTradeCapture.Api.Services
             _currencyService = currencyService;
         }
 
-        public async Task<TradeEntity> CaptureTradeAsync(TradeRequest trade, CancellationToken ct = default)
+        public async Task<TradeResponse> CaptureTradeAsync(TradeRequest trade, CancellationToken ct = default)
         {
-            // Check for existence FIRST
-            var existing = await _db.Trades
-                .FirstOrDefaultAsync(t => t.ExternalId == trade.ExternalId, ct);
-
-            if (existing != null)
-            {
-                return existing; // Already processed, return the existing one
-            }
-
-            var rate = _currencyService.GetRate(trade.Currency, "EUR");
-
-            // Only add if it does not exist
-            var entity = MapToEntity(trade, rate);
-            _db.Trades.Add(entity);
+            using var transaction = await _db.Database.BeginTransactionAsync(ct);
 
             try
             {
-                await _db.SaveChangesAsync(ct);
-                return entity;
-            }
-            catch (DbUpdateException)
-            {
-                // Double-check if someone inserted it in the microsecond between Check and Save
-                return await _db.Trades.FirstAsync(t => t.ExternalId == trade.ExternalId, ct);
-            }
+                var existing = await _db.Trades
+                    .FromSqlInterpolated($"SELECT * FROM Trades WITH (UPDLOCK, ROWLOCK) WHERE ExternalId = {trade.ExternalId}")
+                    .FirstOrDefaultAsync(ct);
 
+                if (existing != null) return MapToResponse(existing);
+
+                var rate = _currencyService.GetRate(trade.Currency, "EUR");
+                var entity = MapToEntity(trade, rate);
+
+                _db.Trades.Add(entity);
+                await _db.SaveChangesAsync(ct);
+
+                await transaction.CommitAsync(ct);
+                return MapToResponse(entity);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync(ct);
+                throw; // Or handle duplicate explicitly
+            }
         }
 
         private static TradeEntity MapToEntity(TradeRequest request, decimal rate)
@@ -60,9 +58,24 @@ namespace BackOfficeTradeCapture.Api.Services
                 TradeTime = request.TradeTime,
                 Currency = request.Currency,
                 NotionalBase = request.Quantity * request.Price * rate,
-                BaseCurrency = "EUR" // Fixed base currency per your requirements
+                BaseCurrency = "EUR"
             };
         }
+
+        private static TradeResponse MapToResponse(TradeEntity entity) =>
+           new(
+               entity.Id,
+               entity.ExternalId,
+               entity.Account,
+               entity.Symbol,
+               entity.Side,
+               entity.Quantity,
+               entity.Price,
+               entity.TradeTime,
+               entity.Currency,
+               entity.NotionalBase,
+               entity.BaseCurrency
+           );
 
     }
 }
