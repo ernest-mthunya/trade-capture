@@ -25,8 +25,7 @@ public class TradeEntity
     public string Side { get; set; } = default!;
 
     [Required]
-    [Column(TypeName = "decimal(18,2)")]
-    public decimal Quantity { get; set; }
+    public int Quantity { get; set; }
 
     [Required]
     [Column(TypeName = "decimal(18,4)")]

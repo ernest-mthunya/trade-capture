@@ -21,7 +21,7 @@ namespace BackOfficeTradeCapture.Api.Migrations
                     Account = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Symbol = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Side = table.Column<string>(type: "nvarchar(4)", maxLength: 4, nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
                     TradeTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Currency = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
@@ -33,6 +33,27 @@ namespace BackOfficeTradeCapture.Api.Migrations
                 {
                     table.PrimaryKey("PK_Trades", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Trades_Account_Symbol",
+                table: "Trades",
+                columns: new[] { "Account", "Symbol" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Trades_TradeTime",
+                table: "Trades",
+                column: "TradeTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Trades_TradeTime_Account_Symbol",
+                table: "Trades",
+                columns: new[] { "TradeTime", "Account", "Symbol" });
+
+            migrationBuilder.CreateIndex(
+                name: "UX_Trades_ExternalId",
+                table: "Trades",
+                column: "ExternalId",
+                unique: true);
         }
 
         /// <inheritdoc />

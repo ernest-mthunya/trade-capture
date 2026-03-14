@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BackOfficeTradeCapture.Api.Migrations
 {
     [DbContext(typeof(BackOfficeDbContext))]
-    [Migration("20260314113823_AddedIndeces")]
-    partial class AddedIndeces
+    [Migration("20260314215945_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,8 +62,8 @@ namespace BackOfficeTradeCapture.Api.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<string>("Side")
                         .IsRequired()
