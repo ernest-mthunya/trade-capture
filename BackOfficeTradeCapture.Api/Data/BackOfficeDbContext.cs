@@ -1,5 +1,6 @@
 ﻿using BackOfficeTradeCapture.Api.Entities;
 using BackOfficeTradeCapture.Api.Models;
+using BackOfficeTradeCapture.Api.Models.BackOfficeTradeCapture.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 

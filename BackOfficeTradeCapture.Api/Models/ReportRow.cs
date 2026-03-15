@@ -2,24 +2,16 @@
 
 namespace BackOfficeTradeCapture.Api.Models
 {
-    public class ReportRow
+    using System.Text.Json.Serialization;
+
+    namespace BackOfficeTradeCapture.Api.Models
     {
-        [JsonPropertyName("account")]
-        public string Account { get; set; } = default!;
-
-        [JsonPropertyName("symbol")]
-        public string Symbol { get; set; } = default!;
-
-        [JsonPropertyName("total_qty")]
-        public int TotalQty { get; set; }
-
-        [JsonPropertyName("avg_price")]
-        public decimal AvgPrice { get; set; }
-
-        [JsonPropertyName("notional_base")]
-        public decimal NotionalBase { get; set; }
-
-        [JsonPropertyName("base_ccy")]
-        public string BaseCcy { get; set; } = "EUR";
+        public record ReportRow(
+            [property: JsonPropertyName("account")] string Account,
+            [property: JsonPropertyName("symbol")] string Symbol,
+            [property: JsonPropertyName("total_qty")] int TotalQty,
+            [property: JsonPropertyName("avg_price")] decimal AvgPrice,
+            [property: JsonPropertyName("notional_base")] decimal NotionalBase,
+            [property: JsonPropertyName("base_ccy")] string BaseCcy);
     }
 }

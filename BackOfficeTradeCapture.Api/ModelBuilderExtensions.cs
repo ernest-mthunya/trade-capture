@@ -1,5 +1,6 @@
 ﻿using BackOfficeTradeCapture.Api.Entities;
 using BackOfficeTradeCapture.Api.Models;
+using BackOfficeTradeCapture.Api.Models.BackOfficeTradeCapture.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BackOfficeTradeCapture.Api
@@ -29,9 +30,16 @@ namespace BackOfficeTradeCapture.Api
 
         public static ModelBuilder ConfigureReportRow(this ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ReportRow>()
-                .HasNoKey()
-                .ToView(null);
+            modelBuilder.Entity<ReportRow>(e =>
+            {
+                e.HasNoKey().ToView(null);
+                e.Property(r => r.Account).HasColumnName("Account");
+                e.Property(r => r.Symbol).HasColumnName("Symbol");
+                e.Property(r => r.TotalQty).HasColumnName("TotalQty");
+                e.Property(r => r.AvgPrice).HasColumnName("AvgPrice").HasPrecision(18, 6);
+                e.Property(r => r.NotionalBase).HasColumnName("NotionalBase").HasPrecision(18, 2);
+                e.Property(r => r.BaseCcy).HasColumnName("BaseCcy");
+            });
 
             return modelBuilder;
         }

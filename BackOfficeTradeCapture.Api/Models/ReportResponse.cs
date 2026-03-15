@@ -1,19 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using BackOfficeTradeCapture.Api.Models.BackOfficeTradeCapture.Api.Models;
+using System.Text.Json.Serialization;
 
 namespace BackOfficeTradeCapture.Api.Models
 {
-    public class ReportResponse
-    {
-        [JsonPropertyName("from")]
-        public DateOnly From { get; set; }
-
-        [JsonPropertyName("to")]
-        public DateOnly To { get; set; }
-
-        [JsonPropertyName("base_ccy")]
-        public string BaseCcy { get; set; } = "EUR";
-
-        [JsonPropertyName("rows")]
-        public List<ReportRow> Rows { get; set; } = [];
-    }
+    public record ReportResponse(
+        [property: JsonPropertyName("from")] DateOnly From,
+        [property: JsonPropertyName("to")] DateOnly To,
+        [property: JsonPropertyName("base_ccy")] string BaseCcy,
+        [property: JsonPropertyName("rows")] List<ReportRow> Rows);
 }

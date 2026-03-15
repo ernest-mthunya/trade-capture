@@ -17,13 +17,12 @@ namespace BackOfficeTradeCapture.Api.Services
                 .AsNoTracking()
                 .ToListAsync(ct);
 
-            return new ReportResponse
-            {
-                From = from,
-                To = to,
-                BaseCcy = "EUR",
-                Rows = rows
-            };
+            return new ReportResponse(
+               from,
+               to,
+               rows.FirstOrDefault()?.BaseCcy ?? "EUR",
+               rows
+            );
         }
     }
 }
