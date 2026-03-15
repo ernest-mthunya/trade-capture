@@ -65,6 +65,33 @@ public static class EndpointsExtensions
             }
         });
 
+        app.MapPost("/trades/batch", async Task<Results<Created<BatchTradeResponse>, ValidationProblem, ProblemHttpResult>> (
+           BatchTradeRequest request,
+           ITradeService tradeService,
+           ILoggerFactory loggerFactory,
+           CancellationToken ct) =>
+        {
+
+            var logger = loggerFactory.CreateLogger(nameof(EndpointsExtensions));
+
+
+            var errors = BatchTradeRequestValidator.Validate(request);
+            if (errors.Count > 0)
+                return TypedResults.ValidationProblem(errors);
+
+            try
+            {
+                var response = await tradeService.CaptureTradesBatchAsync(request, ct);
+                return TypedResults.Created("/trades/batch", response);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to process batch of {Count} trades", request.Trades.Count);
+                return TypedResults.Problem("An error occurred while processing the batch.");
+            }
+        })
+       .WithName("CreateTradeBatch")
+       .WithTags("Trades");
         return app;
     }
 }

@@ -5,6 +5,10 @@ namespace BackOfficeTradeCapture.Api.Services;
 
 public interface ITradeService
 {
-    Task<TradeResponse> CaptureTradeAsync(TradeRequest request, CancellationToken ct = default);
+    Task<TradeResponse> CaptureTradeAsync(
+        TradeRequest request, CancellationToken ct = default);
+
+    Task<BatchTradeResponse> CaptureTradesBatchAsync(
+       BatchTradeRequest request, CancellationToken ct = default);
 }
 

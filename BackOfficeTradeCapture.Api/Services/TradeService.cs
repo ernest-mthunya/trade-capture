@@ -23,25 +23,14 @@ namespace BackOfficeTradeCapture.Api.Services
 
             try
             {
-                var existing = await _db.Trades
-                    .FromSqlInterpolated($"SELECT * FROM Trades WITH (UPDLOCK, ROWLOCK) WHERE ExternalId = {trade.ExternalId}")
-                    .FirstOrDefaultAsync(ct);
-
-                if (existing != null) return MapToResponse(existing);
-
-                var rate = _currencyService.GetRate(trade.Currency, "EUR");
-                var entity = MapToEntity(trade, rate);
-
-                _db.Trades.Add(entity);
-                await _db.SaveChangesAsync(ct);
-
+                var response = await CaptureTradeInternalAsync(trade, ct);
                 await transaction.CommitAsync(ct);
-                return MapToResponse(entity);
+                return response;
             }
             catch (Exception)
             {
                 await transaction.RollbackAsync(ct);
-                throw; // Or handle duplicate explicitly
+                throw;
             }
         }
 
@@ -77,5 +66,49 @@ namespace BackOfficeTradeCapture.Api.Services
                entity.BaseCurrency
            );
 
+        public async Task<BatchTradeResponse> CaptureTradesBatchAsync(BatchTradeRequest request, CancellationToken ct = default)
+        {
+            var responses = new List<TradeResponse>();
+
+            using var transaction = await _db.Database.BeginTransactionAsync(ct);
+
+            try
+            {
+                foreach (var trade in request.Trades)
+                {
+                    var response = await CaptureTradeInternalAsync(trade, ct);
+                    responses.Add(response);
+                }
+                await transaction.CommitAsync(ct);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw;
+            }
+
+            return new BatchTradeResponse
+            {
+                Accepted = responses.Count,
+                Trades = responses
+            };
+        }
+
+        private async Task<TradeResponse> CaptureTradeInternalAsync(TradeRequest trade, CancellationToken ct)
+        {
+            var existing = await _db.Trades
+                .FromSqlInterpolated($"SELECT * FROM Trades WITH (UPDLOCK, ROWLOCK) WHERE ExternalId = {trade.ExternalId}")
+                .FirstOrDefaultAsync(ct);
+
+            if (existing != null) return MapToResponse(existing);
+
+            var rate = _currencyService.GetRate(trade.Currency, "EUR");
+            var entity = MapToEntity(trade, rate);
+
+            _db.Trades.Add(entity);
+            await _db.SaveChangesAsync(ct);
+
+            return MapToResponse(entity);
+        }
     }
 }
