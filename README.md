@@ -15,7 +15,17 @@ A .NET 8 back-office trade capture system consisting of three projects.
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - SQL Server Express or Developer Edition
 
-## Database Setup
+## Getting Started
+
+### 1. Restore packages
+
+From the solution root:
+
+```bash
+dotnet restore
+```
+
+### 2. Database setup
 
 Update the connection string in `BackOfficeTradeCapture.Api/appsettings.json`:
 
@@ -27,13 +37,13 @@ Update the connection string in `BackOfficeTradeCapture.Api/appsettings.json`:
 
 For SQL Server Express replace the server with `<YOUR_MACHINE>\\SQLEXPRESS`.
 
-Then apply migrations from the solution root:
+### 3. Apply migrations
 
 ```bash
 dotnet ef database update --project BackOfficeTradeCapture.Api
 ```
 
-## Running the Solution
+### 4. Run the solution
 
 Both `BackOfficeTradeCapture.Api` and `BackOfficeTradeCapture.Wcf` must run simultaneously — the API calls the WCF service to resolve currency rates at trade ingestion time.
 
