@@ -11,7 +11,7 @@ namespace BackOfficeTradeCapture.Api.Models
         public string Symbol { get; set; } = default!;
 
         [JsonPropertyName("total_qty")]
-        public decimal TotalQty { get; set; }
+        public int TotalQty { get; set; }
 
         [JsonPropertyName("avg_price")]
         public decimal AvgPrice { get; set; }

@@ -12,7 +12,7 @@ namespace BackOfficeTradeCapture.Api.Services
 
             var rows = await db.TradeReportRows
                 .FromSqlRaw(
-                    "EXEC dbo.usp_GetTradeReport @From = {0}, @ToExclusive = {1}",
+                    "EXEC dbo.usp_GetTradeReport @From = {0}, @To = {1}",
                     from, to)
                 .AsNoTracking()
                 .ToListAsync(ct);

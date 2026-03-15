@@ -37,9 +37,11 @@ public static class EndpointsExtensions
            string? from,
            string? to,
            IReportService reportService,
+            ILoggerFactory loggerFactory,
            CancellationToken ct) =>
         {
-           
+            var logger = loggerFactory.CreateLogger(nameof(EndpointsExtensions));
+
             bool fromValid = DateOnly.TryParse(from, out var fromDate);
             bool toValid = DateOnly.TryParse(to, out var toDate);
 
@@ -56,8 +58,9 @@ public static class EndpointsExtensions
                 var report = await reportService.GetTradeReportAsync(fromDate, toDate, ct);
                 return TypedResults.Ok(report);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Failed to generate trade report for {From} to {To}", fromDate, toDate);
                 return TypedResults.BadRequest("An internal error occurred while generating the report.");
             }
         });
