@@ -43,11 +43,107 @@ Indexes:
 
 ### Report Stored Procedure
 
-`usp_GetTradeReport` accepts `@From` and `@To` as `DATETIME2` (mapped from `DateOnly` by EF Core as `DbType.Date`). The `WHERE` clause uses `CAST(t.TradeTime AS DATE)` on both sides to strip time-of-day and UTC offset, ensuring trades are matched by calendar date regardless of when during the day they occurred:
+`usp_GetTradeReport` accepts `@From` and `@To` as `DATETIME2` (mapped from `DateOnly` by EF Core as `DbType.Date`). It aggregates all trades within the inclusive calendar date range, grouping by account and symbol, and returns one summary row per group.
+
+#### Full Definition
+
+```sql
+USE [TradeDb]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[usp_GetTradeReport]
+    @From DATETIME2,
+    @To   DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        t.Account                                                        AS Account,
+        t.Symbol                                                         AS Symbol,
+        SUM(t.Quantity)                                                  AS TotalQty,
+        SUM(CAST(t.Quantity AS DECIMAL(18,6)) * t.Price)
+            / SUM(CAST(t.Quantity AS DECIMAL(18,6)))                     AS AvgPrice,
+        SUM(t.NotionalBase)                                              AS NotionalBase,
+        MAX(t.BaseCurrency)                                              AS BaseCcy
+    FROM dbo.Trades t
+    WHERE CAST(t.TradeTime AS DATE) >= CAST(@From AS DATE)
+      AND CAST(t.TradeTime AS DATE) <= CAST(@To AS DATE)
+    GROUP BY t.Account, t.Symbol
+    ORDER BY t.Account, t.Symbol;
+END;
+```
+
+#### Explanation
+
+**Parameters**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `@From` | `DATETIME2` | Start of the date range (inclusive) |
+| `@To` | `DATETIME2` | End of the date range (inclusive) |
+
+Both are passed as `DATETIME2` but effectively treated as dates — the `CAST(... AS DATE)` in the `WHERE` clause strips any time component, so the caller does not need to zero out the time portion before calling.
+
+**Output columns**
+
+| Column | Expression | Description |
+|--------|------------|-------------|
+| `Account` | `t.Account` | Trading account identifier |
+| `Symbol` | `t.Symbol` | Instrument/ticker |
+| `TotalQty` | `SUM(Quantity)` | Total units traded across all matching trades |
+| `AvgPrice` | Quantity-weighted average | Weighted average price: total value divided by total quantity, cast to `DECIMAL(18,6)` to avoid integer division |
+| `NotionalBase` | `SUM(NotionalBase)` | Total notional value in the base currency (EUR) |
+| `BaseCcy` | `MAX(BaseCurrency)` | Base currency — `MAX` is used as an aggregate no-op since all rows carry the same value (`EUR`) |
+
+**Date filtering**
 
 ```sql
 WHERE CAST(t.TradeTime AS DATE) >= CAST(@From AS DATE)
   AND CAST(t.TradeTime AS DATE) <= CAST(@To AS DATE)
+```
+
+`TradeTime` is stored as `datetimeoffset` with a UTC offset. Casting both sides to `DATE` strips the time-of-day and UTC offset, so trades are matched by calendar date regardless of when during the day they occurred. This avoids off-by-one issues that would arise from comparing raw `datetimeoffset` values against midnight boundaries.
+
+The composite index `IX_Trades_TradeTime_Account_Symbol` covers this query — the leading `TradeTime` column supports the range scan, and `Account`/`Symbol` are included to avoid a key lookup for the `GROUP BY`.
+
+**Grouping and ordering**
+
+Results are grouped and ordered by `Account` then `Symbol`, producing one aggregated row per account–symbol pair within the requested date range.
+
+#### Full Definition
+
+```sql
+USE [TradeDb]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[usp_GetTradeReport]
+    @From DATETIME2,
+    @To   DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        t.Account                                                        AS Account,
+        t.Symbol                                                         AS Symbol,
+        SUM(t.Quantity)                                                  AS TotalQty,
+        SUM(CAST(t.Quantity AS DECIMAL(18,6)) * t.Price)
+            / SUM(CAST(t.Quantity AS DECIMAL(18,6)))                     AS AvgPrice,
+        SUM(t.NotionalBase)                                              AS NotionalBase,
+        MAX(t.BaseCurrency)                                              AS BaseCcy
+    FROM dbo.Trades t
+    WHERE CAST(t.TradeTime AS DATE) >= CAST(@From AS DATE)
+      AND CAST(t.TradeTime AS DATE) <= CAST(@To AS DATE)
+    GROUP BY t.Account, t.Symbol
+    ORDER BY t.Account, t.Symbol;
+END;
 ```
 
 ---
@@ -140,26 +236,6 @@ builder.Services.AddScoped(_ =>
 ```
 
 No other changes are required — `TradeService` depends on `ICurrencyRateService` and is unaware of whether the implementation is a stub or a live SOAP client.
-
----
-
-## Local Database Setup
-
-The API uses SQL Server Express LocalDB. Set the connection string in `appsettings.json`:
-
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=<YOUR_MACHINE>\\SQLEXPRESS;Database=TradeDb;Trusted_Connection=True;TrustServerCertificate=True"
-}
-```
-
-Replace `<YOUR_MACHINE>` with your machine name, or use `(localdb)\\MSSQLLocalDB` if running LocalDB:
-
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=TradeDb;Trusted_Connection=True;TrustServerCertificate=True"
-}
-```
 
 ---
 

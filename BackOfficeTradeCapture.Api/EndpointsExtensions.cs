@@ -26,7 +26,6 @@ public static class EndpointsExtensions
             }
             catch (Exception ex)
             {
-                // Log the exception here
                 return TypedResults.Problem("An error occurred while processing the trade.");
             }
         })
